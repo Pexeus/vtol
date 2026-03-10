@@ -1,9 +1,31 @@
 import { E3372 } from "./classes/E3372.js";
 import { FlightController } from "./classes/FlightController.js";
+import { MavlinkParser } from "./classes/MavlinkParser.js";
+import { OnboardController } from "./classes/OnboardController.js";
 
-const fc = new FlightController('/dev/ttyACM0', 115200)
-//fc.on("position", pos => console.log(pos))
-//fc.on("flightstate", state => console.log(state))
+async function debugController() {
+    const controller = new OnboardController({
+        flighControllerLink: {
+            baudRate: 921600,
+            device: '/dev/ttyS0'
+        },
+        link: {
+            host: 'verion.ch',
+            ports: {
+                data: 5000,
+                video: 5001
+            }
+        },
+        lteRouter: {
+            updateInterval: 1000
+        }
+    })
 
-const stick = new E3372(1000)
-stick.on("status", status => console.log(status))
+    await controller.init()
+}
+
+function debugPort() {
+    const parser = new MavlinkParser('/dev/serial0', 921600)
+}
+
+debugController()

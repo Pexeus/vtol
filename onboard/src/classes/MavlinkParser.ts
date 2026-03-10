@@ -18,18 +18,22 @@ export class MavlinkParser extends TypedEmitter<Events> {
 
     constructor(devicePath: string, baudRate: number) {
         super()
-        this.port = new SerialPort({ path: '/dev/ttyACM0', baudRate: 115200 });
+        this.port = new SerialPort({ path: devicePath, baudRate: baudRate });
         this.reader = this.port
             .pipe(new MavLinkPacketSplitter())
             .pipe(new MavLinkPacketParser());
 
-        this.reader.on('data', packet => {
+        this.reader.on('data', packet => {            
             const match = REGISTRY[packet.header.msgid]
 
             if (match) {
                 const data = packet.protocol.data(packet.payload, match);
                 this.emit(match.MSG_NAME, data)
             }
+        })
+
+        this.reader.on("error", err => {
+            throw new Error(`Mavlink Parser Errored: ${err}`)
         })
     }
 }

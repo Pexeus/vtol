@@ -20,13 +20,20 @@ export interface LTEConnectionStatus {
     signalStrength: number;
     signalMax: number;
 }
-export interface PlaneConfiguration {
+export interface OnboardControllerConfiguration {
     flighControllerLink: {
         device: string;
         baudRate: number;
     };
     lteRouter: {
         updateInterval: number;
+    };
+    link: {
+        host: string;
+        ports: {
+            video: number;
+            data: number;
+        };
     };
 }
 //# sourceMappingURL=types.d.ts.map

@@ -11,7 +11,7 @@ export class MavlinkParser extends TypedEmitter {
     reader;
     constructor(devicePath, baudRate) {
         super();
-        this.port = new SerialPort({ path: '/dev/ttyACM0', baudRate: 115200 });
+        this.port = new SerialPort({ path: devicePath, baudRate: baudRate });
         this.reader = this.port
             .pipe(new MavLinkPacketSplitter())
             .pipe(new MavLinkPacketParser());
@@ -21,6 +21,9 @@ export class MavlinkParser extends TypedEmitter {
                 const data = packet.protocol.data(packet.payload, match);
                 this.emit(match.MSG_NAME, data);
             }
+        });
+        this.reader.on("error", err => {
+            throw new Error(`Mavlink Parser Errored: ${err}`);
         });
     }
 }
