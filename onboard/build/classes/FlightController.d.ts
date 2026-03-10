@@ -7,6 +7,7 @@ interface Events {
 export declare class FlightController extends TypedEmitter<Events> {
     private parser;
     constructor(devicePath: string, baudRate: number);
+    private enableHighFrequencyTelemetry;
     private upstreamTelemetry;
 }
 export {};

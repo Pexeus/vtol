@@ -27,16 +27,10 @@ class UDPSender(Output):
         self.sock.setblocking(True)
         self.frame_id = 0
 
-        self.sock.setsockopt(
-            socket.SOL_SOCKET,
-            socket.SO_BINDTODEVICE,
-            b"usb0"
-        )
-
     def outputframe(self, frame, keyframe=True, timestamp=None, packet=None, audio=False):
-        timestamp = time.time_ns() 
+        timestamp = getTimeMs() 
         self.frame_id = (self.frame_id + 1) & 0xFFFFFFFF
-        print(timestamp)
+
         chunk_cnt = (len(frame) + PAYLOAD_SIZE - 1) // PAYLOAD_SIZE
 
         for chunk_id in range(chunk_cnt):
@@ -88,9 +82,9 @@ video_config = cam.create_video_configuration(
 cam.configure(video_config)
 
 encoder = H264Encoder(
-    bitrate=2_000_000,
+    bitrate=4_000_000,
     profile="baseline",
-    iperiod=30,
+    iperiod=10,
     repeat=True
 )
 

@@ -1,5 +1,5 @@
 import { SerialPort } from 'serialport';
-import { MavLinkPacketSplitter, MavLinkPacketParser, minimal, common, ardupilotmega } from 'node-mavlink';
+import { MavLinkPacketSplitter, MavLinkPacketParser, minimal, common, ardupilotmega, send, MavLinkProtocolV1 } from 'node-mavlink';
 import { TypedEmitter } from "tiny-typed-emitter";
 const REGISTRY = {
     ...minimal.REGISTRY,
@@ -22,9 +22,13 @@ export class MavlinkParser extends TypedEmitter {
                 this.emit(match.MSG_NAME, data);
             }
         });
+        this.port.once('data', () => this.emit("ready"));
         this.reader.on("error", err => {
             throw new Error(`Mavlink Parser Errored: ${err}`);
         });
+    }
+    async send(command) {
+        await send(this.port, command, new MavLinkProtocolV1(255, 190));
     }
 }
 //# sourceMappingURL=MavlinkParser.js.map

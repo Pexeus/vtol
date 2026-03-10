@@ -19,7 +19,7 @@ export class OnboardController {
 
         this.flightController = new FlightController(config.flighControllerLink.device, config.flighControllerLink.baudRate)
         this.lteRouter = new E3372(config.lteRouter.updateInterval)
-        this.socket = new Client('vehicle')
+        this.socket = new Client('plane')
         this.videoStream = new ChildProcess(
             "python3",
             ["/home/pi/vtol/onboard/streamer/streamer.py"],
@@ -28,12 +28,12 @@ export class OnboardController {
 
     async init() {
         try {
+            console.log('connecting to CGS server');
+            await this.socket.connect(this.config.link.host, this.config.link.ports.data)
             console.log('setting up telemetry channels');
             this.setupTelemetry()
             console.log(`starting video stream`);
             this.videoStream.run()
-            console.log('connecting to CGS server');
-            await this.socket.connect(this.config.link.host, this.config.link.ports.data)
         }
         catch (err) {
             throw new Error(`Failed to initiate Controller: ${err}`)
@@ -43,9 +43,13 @@ export class OnboardController {
     private setupTelemetry() {
         this.flightController.on("flightstate", state => {
             console.log(state);
-            this.socket.emit("flightstate", state)
+            this.socket.send("flightstate", state, true)
         })
-        this.flightController.on("position", pos => this.socket.emit("position", pos))
-        this.lteRouter.on("status", status => this.socket.emit("status", status))
+        this.flightController.on("position", pos => {
+            console.log(pos);
+            this.socket.send("position", pos)
+        })
+        
+        this.lteRouter.on("status", status => this.socket.send("status", status))
     }
 }

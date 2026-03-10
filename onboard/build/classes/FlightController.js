@@ -1,3 +1,4 @@
+import { common } from 'node-mavlink';
 import { TypedEmitter } from "tiny-typed-emitter";
 import { MavlinkParser } from './MavlinkParser.js';
 export class FlightController extends TypedEmitter {
@@ -5,7 +6,18 @@ export class FlightController extends TypedEmitter {
     constructor(devicePath, baudRate) {
         super();
         this.parser = new MavlinkParser(devicePath, baudRate);
-        this.upstreamTelemetry();
+        this.parser.on("ready", () => {
+            this.upstreamTelemetry();
+            this.enableHighFrequencyTelemetry();
+        });
+    }
+    async enableHighFrequencyTelemetry() {
+        const command = new common.SetMessageIntervalCommand();
+        command.targetComponent = 1;
+        command.targetSystem = 1;
+        command.messageId = 30;
+        command.interval = 100;
+        await this.parser.send(command);
     }
     async upstreamTelemetry() {
         //position

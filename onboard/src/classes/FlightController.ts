@@ -1,5 +1,5 @@
 import { SerialPort } from 'serialport'
-import { MavLinkPacketSplitter, MavLinkPacketParser } from 'node-mavlink'
+import { MavLinkPacketSplitter, MavLinkPacketParser, common, send } from 'node-mavlink'
 import { TypedEmitter } from "tiny-typed-emitter";
 import { MavlinkParser } from './MavlinkParser.js';
 import { FlightState, Position } from '../types.js';
@@ -16,7 +16,20 @@ export class FlightController extends TypedEmitter<Events> {
         super()
         this.parser = new MavlinkParser(devicePath, baudRate)
 
-        this.upstreamTelemetry()
+        this.parser.on("ready", () => {
+            this.upstreamTelemetry()
+            this.enableHighFrequencyTelemetry()
+        })
+    }
+
+    private async enableHighFrequencyTelemetry() {
+        const command = new common.SetMessageIntervalCommand()
+        command.targetComponent = 1
+        command.targetSystem = 1
+        command.messageId = 30
+        command.interval = 100
+
+        await this.parser.send(command)
     }
 
     private async upstreamTelemetry() {

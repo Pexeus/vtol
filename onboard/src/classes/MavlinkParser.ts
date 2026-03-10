@@ -1,8 +1,9 @@
 import { SerialPort } from 'serialport'
-import { MavLinkPacketSplitter, MavLinkPacketParser, MavLinkPacketRegistry, minimal, common, ardupilotmega } from 'node-mavlink'
+import { MavLinkPacketSplitter, MavLinkPacketParser, MavLinkPacketRegistry, minimal, common, ardupilotmega, send, MavLinkData, MavLinkProtocolV2, MavLinkProtocolV1 } from 'node-mavlink'
 import { TypedEmitter } from "tiny-typed-emitter";
 
 interface Events {
+    "ready": () => void,
     [event: string]: (message: any) => void;
 }
 
@@ -23,7 +24,7 @@ export class MavlinkParser extends TypedEmitter<Events> {
             .pipe(new MavLinkPacketSplitter())
             .pipe(new MavLinkPacketParser());
 
-        this.reader.on('data', packet => {            
+        this.reader.on('data', packet => {
             const match = REGISTRY[packet.header.msgid]
 
             if (match) {
@@ -32,8 +33,14 @@ export class MavlinkParser extends TypedEmitter<Events> {
             }
         })
 
+        this.port.once('data', () => this.emit("ready"))
+
         this.reader.on("error", err => {
             throw new Error(`Mavlink Parser Errored: ${err}`)
         })
+    }
+
+    async send(command: MavLinkData) {
+        await send(this.port, command, new MavLinkProtocolV1(255, 190))
     }
 }

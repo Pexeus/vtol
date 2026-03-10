@@ -1,3 +1,4 @@
+import { FlightController } from "./classes/FlightController.js";
 import { MavlinkParser } from "./classes/MavlinkParser.js";
 import { OnboardController } from "./classes/OnboardController.js";
 async function debugController() {
@@ -9,8 +10,8 @@ async function debugController() {
         link: {
             host: 'verion.ch',
             ports: {
-                data: 5000,
-                video: 5001
+                data: 4200,
+                video: 4201
             }
         },
         lteRouter: {
@@ -22,5 +23,15 @@ async function debugController() {
 function debugPort() {
     const parser = new MavlinkParser('/dev/serial0', 921600);
 }
-debugController();
+function debugFC() {
+    const fc = new FlightController('/dev/ttyS0', 921600);
+    let last = Date.now();
+    fc.on("flightstate", state => {
+        const now = Date.now();
+        const diff = now - last;
+        last = now;
+        console.log(diff, state);
+    });
+}
+debugFC();
 //# sourceMappingURL=index.js.map
