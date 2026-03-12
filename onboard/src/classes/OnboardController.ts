@@ -1,10 +1,11 @@
 import { TypedEmitter } from "tiny-typed-emitter";
-import { OnboardControllerConfiguration } from "../types.js";
+import { OnboardControllerConfiguration, SystemState } from "../types.js";
 import { FlightController } from "./FlightController.js";
 import { E3372 } from "./E3372.js";
 import { Client } from "udplus"
 import { ChildProcess } from "./ChildProcess.js";
 import path from "path"
+import { getCapacity as calculateLipoCapacity } from "../util.js";
 
 export class OnboardController {
     config: OnboardControllerConfiguration;
@@ -24,6 +25,10 @@ export class OnboardController {
             "python3",
             ["/home/pi/vtol/onboard/streamer/streamer.py"],
             { log: false })
+
+        this.socket.on('disconnect', () => {
+            console.log('lost connection to ground station');
+        })
     }
 
     async init() {
@@ -34,6 +39,8 @@ export class OnboardController {
             this.setupTelemetry()
             console.log(`starting video stream`);
             this.videoStream.run()
+
+            console.log('system ready!');
         }
         catch (err) {
             throw new Error(`Failed to initiate Controller: ${err}`)
@@ -42,14 +49,48 @@ export class OnboardController {
 
     private setupTelemetry() {
         this.flightController.on("flightstate", state => {
-            console.log(state);
             this.socket.send("flightstate", state, true)
         })
         this.flightController.on("position", pos => {
-            console.log(pos);
             this.socket.send("position", pos)
         })
         
-        this.lteRouter.on("status", status => this.socket.send("status", status))
+        this.lteRouter.on("status", status => this.socket.send("networkstate", status))
+
+        //system status
+        const systemState: SystemState = {
+            battery: {
+                capacity: {
+                    remainingAbsolute: 0,
+                    remainingPercentage: 0,
+                    total: this.config.hardware.battery.capacity
+                },
+                voltage: {
+                    current: 0,
+                    maximum: 4.2 * this.config.hardware.battery.cells
+                }
+            },
+            network: {
+                signalMax: 0,
+                signalStrength: 0
+            }
+        }
+
+        this.flightController.on('battery_voltage', voltage => {
+            const perecentageRemaining = calculateLipoCapacity(this.config.hardware.battery.cells, voltage)
+            const absoluteRemaining = perecentageRemaining / 100 * this.config.hardware.battery.capacity
+
+            systemState.battery.capacity.remainingAbsolute = absoluteRemaining
+            systemState.battery.capacity.remainingPercentage = perecentageRemaining
+        })
+
+        this.lteRouter.on("status", status => {
+            systemState.network.signalMax = status.signalMax
+            systemState.network.signalStrength = status.signalStrength
+        })
+
+        setInterval(() => {
+            this.socket.send('systemstate', systemState)
+        }, 1000);
     }
 }

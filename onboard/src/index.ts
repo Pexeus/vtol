@@ -7,7 +7,7 @@ async function debugController() {
     const controller = new OnboardController({
         flighControllerLink: {
             baudRate: 921600,
-            device: '/dev/ttyS0'
+            device: '/dev/serial0'
         },
         link: {
             host: 'verion.ch',
@@ -18,6 +18,12 @@ async function debugController() {
         },
         lteRouter: {
             updateInterval: 1000
+        },
+        hardware: {
+            battery: {
+                capacity: 1600,
+                cells: 4
+            }
         }
     })
 
@@ -29,7 +35,7 @@ function debugPort() {
 }
 
 function debugFC() {
-    const fc = new FlightController('/dev/ttyS0', 921600)
+    const fc = new FlightController('/dev/serial0', 921600)
 
     let last = Date.now()
 
@@ -42,4 +48,6 @@ function debugFC() {
     })
 }
 
-debugFC()
+debugController()
+
+export * from "./types.js"
