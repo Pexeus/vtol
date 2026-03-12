@@ -30,7 +30,10 @@ export interface SystemState {
             remainingPercentage: number
         }
     }
-    network: LTEConnectionStatus
+    network: LTEConnectionStatus,
+    flightController: {
+        mode: string
+    }
 }
 
 export interface LTEConnectionStatus {
@@ -60,3 +63,12 @@ export interface OnboardControllerConfiguration {
         }
     }
 }
+
+export type Heartbeat = {
+  type: number; // uint8
+  autopilot: number; // uint8
+  base_mode: number; // uint8
+  custom_mode: number; // uint32
+  system_status: number; // uint8
+  mavlink_version: number; // uint8
+};

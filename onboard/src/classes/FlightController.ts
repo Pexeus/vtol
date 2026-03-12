@@ -2,12 +2,13 @@ import { SerialPort } from 'serialport'
 import { MavLinkPacketSplitter, MavLinkPacketParser, common, send } from 'node-mavlink'
 import { TypedEmitter } from "tiny-typed-emitter";
 import { MavlinkParser } from './MavlinkParser.js';
-import { FlightState, Position, SystemState } from '../types.js';
+import { FlightState, Heartbeat, Position, SystemState } from '../types.js';
 
 interface Events {
     "position": (position: Position) => void
     "flightstate": (state: FlightState) => void
     "battery_voltage": (voltage: number) => void
+    "heartbeat": (heartbeat: Heartbeat) => void
 }
 
 export class FlightController extends TypedEmitter<Events> {
@@ -66,6 +67,11 @@ export class FlightController extends TypedEmitter<Events> {
             }
 
             this.emit('flightstate', flightState)
+        })
+
+        //battery state
+        this.parser.on("BATTERY_STATUS", packet => {            
+            this.emit('battery_voltage', packet.voltages[0] / 1000)
         })
     }
 }
