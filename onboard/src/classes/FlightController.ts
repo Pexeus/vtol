@@ -33,12 +33,6 @@ export class FlightController extends TypedEmitter<Events> {
         await this.parser.send(command)
     }
 
-    private upstreamSystemStatus() {
-        this.parser.on("BATTERY_STATUS", packet => {
-            this.emit('battery_voltage', packet.voltage)
-        })
-    }
-
     private async upstreamTelemetry() {
         //position
         this.parser.on('GLOBAL_POSITION_INT', data => {

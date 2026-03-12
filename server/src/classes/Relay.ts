@@ -4,7 +4,7 @@ import { VideoParser } from "./VideoParser.js";
 import { RelayConfig } from "../types.js";
 import { Server as SocketioServer } from "socket.io";
 import { ConnectedClient } from "udplus/build/ConnectedClient.js";
-import {FlightState, LTEConnectionStatus, Position} from "vtol-onboard"
+import {FlightState, LTEConnectionStatus, Position, SystemState} from "vtol-onboard"
 
 export class Relay {
     config: RelayConfig;
@@ -40,6 +40,9 @@ export class Relay {
                 })
                 client.on("position", (position: Position) => {
                     this.io.emit('position', position)
+                })
+                client.on("systemstate", (sysState: SystemState) => {
+                    this.io.emit("systemstate", sysState)
                 })
             }
         })
