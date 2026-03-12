@@ -5,7 +5,7 @@ import { E3372 } from "./E3372.js";
 import { Client } from "udplus"
 import { ChildProcess } from "./ChildProcess.js";
 import path from "path"
-import { getCapacity as calculateLipoCapacity } from "../util.js";
+import { getCapacity as calculateLipoCapacity, mapFlightMode } from "../util.js";
 
 export class OnboardController {
     config: OnboardControllerConfiguration;
@@ -73,15 +73,22 @@ export class OnboardController {
             network: {
                 signalMax: 0,
                 signalStrength: 0
+            },
+            flightController: {
+                mode: ''
             }
         }
 
+        this.flightController.on("heartbeat", heartbeat => {
+            systemState.flightController.mode = mapFlightMode(heartbeat.custom_mode)
+        })
+
         this.flightController.on('battery_voltage', voltage => {
             const perecentageRemaining = calculateLipoCapacity(this.config.hardware.battery.cells, voltage)
-            const absoluteRemaining = perecentageRemaining / 100 * this.config.hardware.battery.capacity
+            const absoluteRemaining = perecentageRemaining / 100 * this.config.hardware.battery.capacity            
 
-            systemState.battery.capacity.remainingAbsolute = absoluteRemaining
-            systemState.battery.capacity.remainingPercentage = perecentageRemaining
+            systemState.battery.capacity.remainingAbsolute = Math.round(absoluteRemaining)
+            systemState.battery.capacity.remainingPercentage = Math.round(perecentageRemaining)
         })
 
         this.lteRouter.on("status", status => {
