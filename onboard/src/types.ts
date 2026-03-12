@@ -18,6 +18,21 @@ export interface FlightState {
     climb: number
 }
 
+export interface SystemState {
+    battery: {
+        voltage: {
+            maximum: number,
+            current: number
+        },
+        capacity: {
+            total: number
+            remainingAbsolute: number
+            remainingPercentage: number
+        }
+    }
+    network: LTEConnectionStatus
+}
+
 export interface LTEConnectionStatus {
     signalStrength: number
     signalMax: number
@@ -36,6 +51,12 @@ export interface OnboardControllerConfiguration {
         ports: {
             video: number
             data: number
+        }
+    },
+    hardware: {
+        battery: {
+            cells: number,
+            capacity: number
         }
     }
 }

@@ -46,7 +46,7 @@ export class E3372 extends TypedEmitter<Events> {
                 this.emit("status", status)
             }
             catch (err) {
-
+                console.log(err);
             }
         }, this.updateInteval);
     }

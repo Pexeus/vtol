@@ -33,10 +33,11 @@ class UDPSender(Output):
             b"usb0"
         )
 
+
     def outputframe(self, frame, keyframe=True, timestamp=None, packet=None, audio=False):
-        timestamp = time.time_ns() 
+        timestamp = getTimeMs() 
         self.frame_id = (self.frame_id + 1) & 0xFFFFFFFF
-        print(timestamp)
+
         chunk_cnt = (len(frame) + PAYLOAD_SIZE - 1) // PAYLOAD_SIZE
 
         for chunk_id in range(chunk_cnt):
@@ -81,17 +82,16 @@ latencyWindow = MovingAverage(30)
 cam = Picamera2()
 print(cam.sensor_modes)
 video_config = cam.create_video_configuration(
-    main={"size": (640, 480), "format": "YUV420"},
-    controls={"FrameRate": 60.0}  # framerate goes here
+    main={"size": (739, 416), "format": "YUV420"},
+    controls={"FrameRate": 30}  # framerate goes here
 )
 
 cam.configure(video_config)
 
 encoder = H264Encoder(
-    bitrate=2_000_000,
+    bitrate=BITRATE,
     profile="baseline",
-    iperiod=30,
-    repeat=True
+    iperiod=30
 )
 
 udp_output = UDPSender("verion.ch", 4201)
@@ -127,7 +127,7 @@ def monitorNetwork():
 
             restartEncoder()
         
-        if averageLatency < 40:
+        if averageLatency < 30:
             last_latency_check = now + 2000
             BITRATE = int(min(BITRATE * 1.1, BITRATE_MAX))
             if BITRATE == BITRATE_MAX:
@@ -144,8 +144,7 @@ def restartEncoder():
     encoder = H264Encoder(
         bitrate=BITRATE,
         profile="baseline",
-        iperiod=10,
-        repeat=True
+        iperiod=30
     )
 
     cam.start_recording(encoder, udp_output)
