@@ -1,1 +1,7 @@
 node_modules/
+build/
+
+# MAV log files
+**/mav.parm
+**/mav.tlog
+**/mav.tlog.raw

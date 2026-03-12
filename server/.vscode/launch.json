@@ -11,7 +11,8 @@
             "console": "integratedTerminal",
 			"preLaunchTask": "${defaultBuildTask}",
             "outFiles": [
-                "${workspaceFolder}/build/**/*.js"
+                "${workspaceFolder}/build/**/*.js",
+                "${workspaceFolder}../udplus/build/**/*.js"
             ]
         }
     ]

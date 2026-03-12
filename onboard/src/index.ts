@@ -2,6 +2,7 @@ import { E3372 } from "./classes/E3372.js";
 import { FlightController } from "./classes/FlightController.js";
 import { MavlinkParser } from "./classes/MavlinkParser.js";
 import { OnboardController } from "./classes/OnboardController.js";
+import { Position, FlightState, LTEConnectionStatus } from "./types.js";
 
 async function debugController() {
     const controller = new OnboardController({
@@ -29,3 +30,7 @@ function debugPort() {
 }
 
 debugController()
+
+export {
+    Position, FlightState, LTEConnectionStatus
+}

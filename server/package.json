@@ -20,11 +20,13 @@
     "homepage": "https://github.com/Pexeus/templates#readme",
     "description": "",
     "devDependencies": {
+        "@types/express": "^5.0.6",
         "typescript": "^5.8.3"
     },
     "dependencies": {
         "@types/node": "^25.4.0",
         "express": "^5.2.1",
+        "socket.io": "^4.8.3",
         "tiny-typed-emitter": "^2.1.0"
     }
 }
