@@ -1,8 +1,9 @@
 import { SerialPort } from 'serialport'
-import { MavLinkPacketSplitter, MavLinkPacketParser, common, send } from 'node-mavlink'
+import { MavLinkPacketSplitter, MavLinkPacketParser, common, send, MavLinkProtocolV1 } from 'node-mavlink'
 import { TypedEmitter } from "tiny-typed-emitter";
 import { MavlinkParser } from './MavlinkParser.js';
-import { FlightState, Heartbeat, Position, SystemState } from '../types.js';
+import { ControlInput, FlightState, Heartbeat, Position, SystemState } from '../types.js';
+import { mapFlightMode } from '../util.js';
 
 interface Events {
     "position": (position: Position) => void
@@ -13,6 +14,7 @@ interface Events {
 
 export class FlightController extends TypedEmitter<Events> {
     private parser: MavlinkParser;
+    private protocol = new MavLinkProtocolV1(255, 190)
 
     constructor(devicePath: string, baudRate: number) {
         super()
@@ -22,6 +24,32 @@ export class FlightController extends TypedEmitter<Events> {
             await this.enableHighFrequencyTelemetry()
             this.upstreamTelemetry()
         })
+    }
+
+    async arm() {
+        const command = new common.ComponentArmDisarmCommand()
+        command.arm = 1
+
+        await this.parser.send(command)
+    }
+
+    async disarm() {
+        const command = new common.ComponentArmDisarmCommand()
+        command.arm = 0
+
+        await this.parser.send(command)
+    }
+
+    async controlInput(controls: ControlInput) {
+        const command = new common.ManualControl()
+
+        command.x = controls.pitch * 1000
+        command.y = controls.roll * 1000
+        command.z = controls.thrust * 1000
+        command.r = controls.yaw * 1000
+        command.target = 1
+
+        await this.parser.send(command)
     }
 
     private async enableHighFrequencyTelemetry() {
@@ -69,8 +97,21 @@ export class FlightController extends TypedEmitter<Events> {
             this.emit('flightstate', flightState)
         })
 
+        this.parser.on("HEARTBEAT", packet => {
+            const heartbeat: Heartbeat = {
+                autopilot: packet.autopilot,
+                base_mode: packet.baseMode,
+                custom_mode: packet.customMode,
+                mavlink_version: packet.mavlinkVersion,
+                system_status: packet.systemStaus,
+                type: packet.type
+            }
+
+            this.emit("heartbeat", heartbeat)
+        })
+
         //battery state
-        this.parser.on("BATTERY_STATUS", packet => {            
+        this.parser.on("BATTERY_STATUS", packet => {
             this.emit('battery_voltage', packet.voltages[0] / 1000)
         })
     }

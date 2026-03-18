@@ -18,6 +18,13 @@ export interface FlightState {
     climb: number
 }
 
+export interface ControlInput {
+    pitch: number,
+    roll: number,
+    thrust: number,
+    yaw: number
+}
+
 export interface SystemState {
     battery: {
         voltage: {
@@ -33,6 +40,7 @@ export interface SystemState {
     network: LTEConnectionStatus,
     flightController: {
         mode: string
+        armed: boolean
     }
 }
 
@@ -65,10 +73,10 @@ export interface OnboardControllerConfiguration {
 }
 
 export type Heartbeat = {
-  type: number; // uint8
-  autopilot: number; // uint8
-  base_mode: number; // uint8
-  custom_mode: number; // uint32
-  system_status: number; // uint8
-  mavlink_version: number; // uint8
+    type: number; // uint8
+    autopilot: number; // uint8
+    base_mode: number; // uint8
+    custom_mode: number; // uint32
+    system_status: number; // uint8
+    mavlink_version: number; // uint8
 };
