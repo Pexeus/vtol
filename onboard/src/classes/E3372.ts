@@ -45,8 +45,8 @@ export class E3372 extends TypedEmitter<Events> {
                 
                 this.emit("status", status)
             }
-            catch (err) {
-                console.log(err);
+            catch (err: any) {
+                console.log(`Failed to query LTE Connectivity Status: ${err.message}`);
             }
         }, this.updateInteval);
     }

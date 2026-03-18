@@ -82,7 +82,7 @@ latencyWindow = MovingAverage(30)
 cam = Picamera2()
 print(cam.sensor_modes)
 video_config = cam.create_video_configuration(
-    main={"size": (739, 416), "format": "YUV420"},
+    main={"size": (640, 480), "format": "YUV420"},
     controls={"FrameRate": 30}  # framerate goes here
 )
 
