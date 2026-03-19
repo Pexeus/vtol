@@ -57,7 +57,7 @@ function init() {
         map.flyTo({
             center: [position.lon, position.lat],
             zoom: 15,
-            animate: true
+            animate: false
         })
 
         plane.setLngLat([position.lon, position.lat])
@@ -79,8 +79,9 @@ onBeforeUnmount(() => {
 }
 
 .mapContainer {
-    width: 450px;
-    height: 250px;
+    width: 100%;
+    height: 100%;
+    flex: 1;
 }
 
 .plane-icon {

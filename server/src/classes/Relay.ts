@@ -2,14 +2,17 @@ import { Client, Server } from "udplus"
 import dgram from "dgram"
 import { VideoParser } from "./VideoParser.js";
 import { RelayConfig } from "../types.js";
-import { Server as SocketioServer } from "socket.io";
+import { Socket, Server as SocketioServer } from "socket.io";
 import { ConnectedClient } from "udplus/build/ConnectedClient.js";
-import {FlightState, LTEConnectionStatus, Position, SystemState} from "vtol-onboard"
+import { ControlInput, FlightState, LTEConnectionStatus, Position, SystemState } from "vtol-onboard"
 
 export class Relay {
     config: RelayConfig;
     sockets: { data: Server; video: dgram.Socket; };
     io: SocketioServer;
+
+    cgs: Socket | undefined
+    vehicle: ConnectedClient | undefined
 
     constructor(config: RelayConfig) {
         this.config = config
@@ -29,13 +32,14 @@ export class Relay {
 
     private async relayData() {
         const socket = this.sockets.data
-        let client: ConnectedClient
-
         await socket.listen(this.config.ports.data)
 
+        //Vehicle => CGS
         socket.on("client", client => {
             if (client.identifier == 'plane') {
-                client.on("flightstate", (flightstate: FlightState) => {                    
+                this.vehicle = client
+
+                client.on("flightstate", (flightstate: FlightState) => {
                     this.io.emit('flightstate', flightstate)
                 })
                 client.on("position", (position: Position) => {
@@ -45,6 +49,37 @@ export class Relay {
                     this.io.emit("systemstate", sysState)
                 })
             }
+        })
+
+        //CGS => Vehicle
+        this.io.on("connection", client => {
+            console.log("CGS connected!", client.id);
+
+            client.on("control", (controls: ControlInput) => {
+                if (this.vehicle && this.vehicle.connected) {
+                    this.vehicle.send('control', controls)
+                }
+            })
+
+            client.on('arm', () => {
+                console.log('arm');
+
+                if (this.vehicle && this.vehicle.connected) {
+                    this.vehicle.send('arm', '')
+                }
+            })
+
+            client.on('disarm', () => {
+                if (this.vehicle && this.vehicle.connected) {
+                    this.vehicle.send('disarm', '')
+                }
+            })
+
+            client.on('setmode', mode => {
+                if (this.vehicle && this.vehicle.connected) {
+                    this.vehicle.send('setmode', mode)
+                }
+            })
         })
     }
 

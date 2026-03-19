@@ -20,10 +20,6 @@ const relay = new Relay({
     }
 })
 
-io.on("connection", client => {
-    console.log("client connected!", client.id);
-})
-
 server.listen(4202, () => {
     console.log("[HTTP] Online on port " + 4202);
     relay.init()
