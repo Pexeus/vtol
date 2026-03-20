@@ -1,9 +1,9 @@
-import { SerialPort } from 'serialport'
-import { MavLinkPacketSplitter, MavLinkPacketParser, common, send, MavLinkProtocolV1 } from 'node-mavlink'
+import { common, MavLinkProtocolV1 } from 'node-mavlink'
 import { TypedEmitter } from "tiny-typed-emitter";
 import { MavlinkParser } from './MavlinkParser.js';
-import { ControlInput, FlightState, Heartbeat, Position, SystemState } from '../types.js';
+import { ControlInput, FlightMode, FlightState, Heartbeat, Position, SystemState } from '../types.js';
 import { mapFlightMode } from '../util.js';
+import { flightmodeMapping } from '../constants.js';
 
 interface Events {
     "position": (position: Position) => void
@@ -24,6 +24,21 @@ export class FlightController extends TypedEmitter<Events> {
             await this.enableHighFrequencyTelemetry()
             this.upstreamTelemetry()
         })
+    }
+
+    async setFlightMode(mode: FlightMode) {
+        const index = flightmodeMapping[mode]
+
+        if (!index) {
+            throw new Error(`Invalid Flight Mode ${mode}`)
+        }
+
+        const command = new common.DoSetModeCommand()
+        command._param1 = 1
+        command._param2 = index
+        
+        await this.parser.send(command)
+        console.log('mode set', index);
     }
 
     async arm() {
@@ -114,5 +129,17 @@ export class FlightController extends TypedEmitter<Events> {
         this.parser.on("BATTERY_STATUS", packet => {
             this.emit('battery_voltage', packet.voltages[0] / 1000)
         })
+
+        this.parser.on("AVAILABLE_MODES", packet => {
+            console.log(packet);
+        })
+
+        const command = new common.SetMessageIntervalCommand()
+        command.targetComponent = 1
+        command.targetSystem = 1
+        command.messageId = 435
+        command.interval = 33_3330
+
+        await this.parser.send(command)
     }
 }

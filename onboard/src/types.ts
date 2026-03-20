@@ -80,3 +80,5 @@ export type Heartbeat = {
     system_status: number; // uint8
     mavlink_version: number; // uint8
 };
+
+export type FlightMode = 'QSTABILIZE' | 'FBWA' | 'STABILIZE' // only keep a limited set that is used right now

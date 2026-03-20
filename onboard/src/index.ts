@@ -23,7 +23,7 @@ async function debugController() {
         hardware: {
             battery: {
                 capacity: 1600,
-                cells: 3 //TODO: CHANGE THIS BEFORE FLIGHT SUPER IMPORTANT
+                cells: 4 //TODO: CHANGE THIS BEFORE FLIGHT SUPER IMPORTANT
             }
         }
     })

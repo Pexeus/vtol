@@ -1,5 +1,5 @@
 import { TypedEmitter } from "tiny-typed-emitter";
-import { ControlInput, OnboardControllerConfiguration, SystemState } from "../types.js";
+import { ControlInput, FlightMode, OnboardControllerConfiguration, SystemState } from "../types.js";
 import { FlightController } from "./FlightController.js";
 import { E3372 } from "./E3372.js";
 import { Client } from "udplus"
@@ -56,6 +56,7 @@ export class OnboardController {
 
         this.socket.on("arm", () => this.flightController.arm())
         this.socket.on("disarm", () => this.flightController.disarm())
+        this.socket.on('setmode', (mode: FlightMode) => this.flightController.setFlightMode(mode))
     }
 
     private setupTelemetry() {
@@ -93,16 +94,14 @@ export class OnboardController {
 
         this.flightController.on("heartbeat", heartbeat => {
             systemState.flightController.mode = mapFlightMode(heartbeat.custom_mode)
-            const armStatus = (heartbeat.base_mode & 128) !== 0;
-            console.log(armStatus);
-
-            systemState.flightController.armed = armStatus
+            systemState.flightController.armed = (heartbeat.base_mode & 128) !== 0;
         })
 
         this.flightController.on('battery_voltage', voltage => {
             const perecentageRemaining = calculateLipoCapacity(this.config.hardware.battery.cells, voltage)
             const absoluteRemaining = perecentageRemaining / 100 * this.config.hardware.battery.capacity
 
+            systemState.battery.voltage.current = voltage
             systemState.battery.capacity.remainingAbsolute = Math.round(absoluteRemaining)
             systemState.battery.capacity.remainingPercentage = Math.round(perecentageRemaining)
         })
