@@ -6,9 +6,10 @@ import { Position, FlightState, LTEConnectionStatus } from "./types.js";
 
 async function debugController() {
     const controller = new OnboardController({
-        flighControllerLink: {
+        flighController: {
             baudRate: 921600,
-            device: '/dev/serial0'
+            device: '/dev/serial0',
+            flightModes: ['QSTABILIZE', 'FBWA', 'STABILIZE']
         },
         link: {
             host: 'verion.ch',
@@ -23,7 +24,7 @@ async function debugController() {
         hardware: {
             battery: {
                 capacity: 1600,
-                cells: 3 //TODO: CHANGE THIS BEFORE FLIGHT SUPER IMPORTANT
+                cells: 4
             }
         }
     })

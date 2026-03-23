@@ -36,7 +36,7 @@ export class E3372 extends TypedEmitter<Events> {
                     headers: this.headers
                 })
 
-                const obj = this.parser.parse(res.data)
+                const obj = this.parser.parse(res.data as string)
                 
                 const status: LTEConnectionStatus = {
                     signalMax: obj.response.maxsignal,
