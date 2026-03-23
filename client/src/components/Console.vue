@@ -33,9 +33,6 @@
                     </div>
                 </div>
             </div>
-            <div class="mapSizer" v-if="state.layout == 'overlay'">
-                <Map></Map>
-            </div>
             <div class="flightdata">
                 <div class="data-item">
                     <Icon icon="material-symbols-light:flight-rounded" class="icon" />
@@ -87,7 +84,6 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import type { FlightState, Position, SystemState } from 'vtol-onboard';
 import { socket } from '../socket';
-import Map from './Map.vue';
 import { Icon } from '@iconify/vue';
 import { controller, state } from '../constants';
 import { toFixed } from '../util';
@@ -222,8 +218,8 @@ function enableControl() {
     width: 100%;
     height: 100%;
     display: flex;
-    align-items: flex-start;
-    justify-content: flex-start;
+    align-items: flex-end;
+    justify-content: center;
     top: 0;
     left: 0;
 }
@@ -255,9 +251,6 @@ function enableControl() {
 
 .center-flightdata {
     justify-content: space-around;
-    padding: 18px 30px;
-    gap: 40px;
-    border-top: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -299,12 +292,6 @@ function enableControl() {
     text-transform: uppercase;
     margin-top: 5px;
     letter-spacing: 1px;
-}
-
-.mapSizer {
-    width: 550px;
-    height: 300px;
-    position: relative;
 }
 
 .thrust-indicator {
