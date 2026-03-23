@@ -40,8 +40,9 @@ export interface SystemState {
     network: LTEConnectionStatus,
     flightController: {
         mode: string
-        armed: boolean
-    }
+        armed: boolean,
+    },
+    config: OnboardControllerConfiguration
 }
 
 export interface LTEConnectionStatus {
@@ -50,9 +51,10 @@ export interface LTEConnectionStatus {
 }
 
 export interface OnboardControllerConfiguration {
-    flighControllerLink: {
+    flighController: {
         device: string
-        baudRate: number
+        baudRate: number,
+        flightModes: FlightMode[]
     }
     lteRouter: {
         updateInterval: number

@@ -20,6 +20,7 @@
     "homepage": "https://github.com/Pexeus/templates#readme",
     "description": "",
     "devDependencies": {
+        "@types/axios": "^0.9.36",
         "typescript": "^5.8.3"
     },
     "dependencies": {

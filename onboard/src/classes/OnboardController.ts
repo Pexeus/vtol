@@ -17,7 +17,7 @@ export class OnboardController {
     constructor(config: OnboardControllerConfiguration) {
         this.config = config
 
-        this.flightController = new FlightController(config.flighControllerLink.device, config.flighControllerLink.baudRate)
+        this.flightController = new FlightController(config.flighController.device, config.flighController.baudRate)
         this.lteRouter = new E3372(config.lteRouter.updateInterval)
         this.socket = new Client('plane')
         this.videoStream = new ChildProcess(
@@ -89,7 +89,8 @@ export class OnboardController {
             flightController: {
                 mode: '',
                 armed: false
-            }
+            },
+            config: this.config
         }
 
         this.flightController.on("heartbeat", heartbeat => {
