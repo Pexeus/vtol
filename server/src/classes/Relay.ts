@@ -4,7 +4,7 @@ import { VideoParser } from "./VideoParser.js";
 import { RelayConfig } from "../types.js";
 import { Socket, Server as SocketioServer } from "socket.io";
 import { ConnectedClient } from "udplus/build/ConnectedClient.js";
-import { ControlInput, FlightState, LTEConnectionStatus, Position, SystemState } from "vtol-onboard"
+import { ControlInput, FlightState, LTEConnectionStatus, Position, StatusMessage, SystemState } from "vtol-onboard"
 
 export class Relay {
     config: RelayConfig;
@@ -37,6 +37,8 @@ export class Relay {
         //Vehicle => CGS
         socket.on("client", client => {
             if (client.identifier == 'plane') {
+                console.log(`Vehicle connected!`);
+
                 this.vehicle = client
 
                 client.on("flightstate", (flightstate: FlightState) => {
@@ -47,6 +49,9 @@ export class Relay {
                 })
                 client.on("systemstate", (sysState: SystemState) => {
                     this.io.emit("systemstate", sysState)
+                })
+                client.on("message", (statusMessage: StatusMessage) => {
+                    this.io.emit('message', statusMessage)
                 })
             }
         })
@@ -78,6 +83,12 @@ export class Relay {
             client.on('setmode', mode => {
                 if (this.vehicle && this.vehicle.connected) {
                     this.vehicle.send('setmode', mode)
+                }
+            })
+
+            client.on('heartbeat', epoch => {
+                if (this.vehicle && this.vehicle.connected) {
+                    this.vehicle.send('heartbeat', epoch)
                 }
             })
         })

@@ -2,10 +2,11 @@ import { Relay } from "./classes/Relay.js";
 import express from "express"
 import http from "http"
 import { Server as SocketioServer } from "socket.io";
-import { Server as UdplusServer } from "udplus"
 
 
 const app = express()
+app.use(express.static('../client/dist'))
+
 const server = http.createServer(app)
 const io = new SocketioServer(server, {
     cors: {

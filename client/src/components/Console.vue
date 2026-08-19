@@ -81,7 +81,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed } from 'vue';
 import type { FlightState, Position, SystemState } from 'vtol-onboard';
 import { socket } from '../socket';
 import { Icon } from '@iconify/vue';

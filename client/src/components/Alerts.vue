@@ -20,7 +20,7 @@ const getIcon = (type: AlertType) => {
         case 'information': return 'material-symbols-light:info-outline';
         case 'warning': return 'material-symbols-light:warning-outline-rounded';
         case 'error': 
-        case 'error/problem': return 'material-symbols-light:error-outline';
+        case 'error': return 'material-symbols-light:error-outline';
         default: return 'material-symbols-light:info-outline';
     }
 };
@@ -30,7 +30,7 @@ const getColor = (type: AlertType) => {
         case 'information': return 'var(--color-primary)';
         case 'warning': return 'var(--color-warning)';
         case 'error': 
-        case 'error/problem': return 'var(--color-error)';
+        case 'error': return 'var(--color-error)';
         default: return 'white';
     }
 };
@@ -40,7 +40,7 @@ const getAlertClass = (type: AlertType) => {
         case 'information': return 'alert-information';
         case 'warning': return 'alert-warning';
         case 'error':
-        case 'error/problem': return 'alert-error';
+        case 'error': return 'alert-error';
         default: return 'alert-information';
     }
 };

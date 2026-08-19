@@ -83,4 +83,19 @@ export type Heartbeat = {
     mavlink_version: number; // uint8
 };
 
+export type Severity =
+    | 'Emergency'
+    | 'Alert'
+    | 'Critical'
+    | 'Error'
+    | 'Warning'
+    | 'Notice'
+    | 'Info'
+    | 'Debug';
+
+export interface StatusMessage {
+    text: string
+    severity: Severity
+}
+
 export type FlightMode = 'QSTABILIZE' | 'FBWA' | 'STABILIZE' // only keep a limited set that is used right now

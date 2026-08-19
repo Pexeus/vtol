@@ -6,6 +6,7 @@
 import { onMounted } from 'vue';
 import { socket } from '../socket';
 import { updateLayoutType } from '../util';
+import { state } from '../constants';
 
 onMounted(() => {
     const canvas = document.querySelector("#videoCanvas") as HTMLCanvasElement
@@ -18,11 +19,13 @@ onMounted(() => {
     const decoder = new VideoDecoder({
         output: (frame) => {
             // Set canvas resolution to video resolution (once or when it changes)
-            if (canvas.width !== frame.displayWidth || canvas.height !== frame.displayHeight) {
-                canvas.width = frame.displayWidth;
-                canvas.height = frame.displayHeight;
-                console.log(`Resolution: ${canvas.width}x${canvas.height}`);
-                updateLayoutType(frame.displayHeight, frame.displayWidth)
+            if (state.layout != '') {
+                if (canvas.width !== frame.displayWidth || canvas.height !== frame.displayHeight) {
+                    canvas.width = frame.displayWidth;
+                    canvas.height = frame.displayHeight;
+                    console.log(`Resolution: ${canvas.width}x${canvas.height}`);
+                    updateLayoutType(frame.displayHeight, frame.displayWidth)
+                }
             }
 
             if (currentHeight != window.innerHeight || currentWidth != window.innerWidth) {
@@ -85,5 +88,6 @@ onMounted(() => {
 
 #videoCanvas {
     height: 100%;
+    width: 100%;
 }
 </style>

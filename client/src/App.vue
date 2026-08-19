@@ -7,6 +7,7 @@
       <HUD></HUD>
       <Console></Console>
       <ModeMenu></ModeMenu>
+      <StatusMessages></StatusMessages>
     </div>
     <div class="mapSizer" v-if="state.layout == 'overlay'">
       <Map></Map>
@@ -28,7 +29,8 @@ import Alerts from './components/Alerts.vue';
 import Inactive from './components/Inactive.vue';
 import { state } from './constants';
 import { displayAlert } from './alert';
-import ModeMenu from './ModeMenu.vue';
+import ModeMenu from './components/ModeMenu.vue';
+import StatusMessages from './components/StatusMessages.vue';
 
 displayAlert('Hallo Test', 'error', 10000)
 </script>
@@ -66,5 +68,12 @@ displayAlert('Hallo Test', 'error', 10000)
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+@media (max-width: 1500px) {
+  .mapSizer {
+    width: 300px;
+    height: 220px;
+  }
 }
 </style>

@@ -20,7 +20,9 @@ export class Controller {
         })
 
         requestAnimationFrame(this.updateGamepadContinously)
+
         this.streamInputs()
+        this.sendHeartbeats()
     }
 
     async enableControl() {
@@ -49,6 +51,15 @@ export class Controller {
         }
 
         requestAnimationFrame(this.updateGamepadContinously)
+    }
+
+    private sendHeartbeats() {
+        setInterval(() => {
+            if (state.mode != 'active') return
+            if (!this.gamepad) return
+
+            socket.emit('heartbeat', Date.now())
+        }, 1000);
     }
 
     private streamInputs() {
